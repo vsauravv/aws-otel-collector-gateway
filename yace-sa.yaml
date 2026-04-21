@@ -1,0 +1,8 @@
+# yace-sa.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: yace-sa
+  namespace: monitoring
+  annotations:
+    eks.amazonaws.com/role-arn: arn:aws:iam::103879232251:role/YACE-IRSA-Role

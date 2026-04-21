@@ -1,0 +1,74 @@
+receivers:
+  googlecloudmonitoring:
+    collection_interval: 2m # Can be specified in seconds (s), minutes (m), or hours (h)
+    project_id: project-3286b065-11a1-41de-8a0
+    metrics_list:
+      # - metric_name: "compute.googleapis.com/instance/cpu/usage_time"
+      # - metric_name: "connectors.googleapis.com/flex/instance/cpu/usage_time"
+      # - metric_name: "compute.googleapis.com/instance/cpu/utilization"
+      - metric_name: "pubsub.googleapis.com/topic/send_request_count"
+      - metric_name: "pubsub.googleapis.com/snapshot/num_messages_by_region"
+      - metric_name: "pubsub.googleapis.com/subscription/num_undelivered_messages"
+      - metric_name: "pubsub.googleapis.com/subscription/pull_ack_request_count"
+      - metric_name: "pubsub.googleapis.com/topic/message_sizes"
+      - metric_name: "pubsub.googleapis.com/topic/send_request_latencies"
+      - metric_name: "storage.googleapis.com/api/request_count"
+      - metric_name: "storage.googleapis.com/network/sent_bytes_count"
+      - metric_name: "storage.googleapis.com/storage/total_bytes"
+      - metric_name: "storage.googleapis.com/api/request_count"
+      - metric_name: "storage.googleapis.com/storage/object_count"
+      - metric_name: "kubernetes.io/container/cpu/core_usage_time"
+      - metric_name: "kubernetes.io/container/memory/swap_used_bytes"
+      - metric_name: "kubernetes.io/container/cpu/limit_utilization"
+      - metric_name: "kubernetes.io/container/cpu/request_utilization"
+      - metric_name: "kubernetes.io/container/memory/limit_bytes"
+      - metric_name: "kubernetes.io/container/memory/used_bytes"
+
+processors:
+
+  resourcedetection:
+    detectors: [system, gcp]
+    timeout: 5s
+    override: false
+
+  attributes:
+    actions:
+      - key: service.name
+        value: gcp-vm-hostmetrics-gcs-pubsub-gks
+        action: upsert
+
+  batch:
+    send_batch_size: 1000
+    timeout: 10s
+
+exporters:
+
+  otlp_http/newrelic:
+    endpoint: https://otlp.nr-data.net:4318
+    headers:
+      api-key: 9ea29eabe354cd12519a696e0c52b69fFFFFNRAL
+
+  otlp_http/dynatrace:
+    endpoint: https://kbo47288.live.dynatrace.com/
+    headers:
+      Authorization: "Api-Token dt0s16.2DBJWDEA.4RD4OZK23AMCZBCAP42BRT255JLEBHFE2NE2KGYJYZ2XSGKFKCBFZYMTLRLER63Y"
+
+  debug:                  # This will print the logs
+    verbosity: detailed   # basic | normal | detailed (detailed gives the max info)
+
+service:
+  telemetry:
+    metrics:
+      readers:
+        - pull:
+            exporter:
+              prometheus:
+                host: localhost
+                port: 8890
+
+  pipelines:
+
+    metrics:
+      receivers: [googlecloudmonitoring]
+      processors: [resourcedetection, attributes, batch]
+      exporters: [otlp_http/newrelic, otlp_http/dynatrace]

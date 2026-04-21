@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: adot-collector
+  namespace: monitoring
+spec:
+  replicas: 2   # 2 replicas for HA, AMP will handle deduplication, if there are any
+  selector:
+    matchLabels:
+      app: adot-collector
+  template:
+    metadata:
+      labels:
+        app: adot-collector
+    spec:
+      serviceAccountName: adot-sa
+      containers:
+      - name: adot-collector
+        image: public.ecr.aws/aws-observability/aws-otel-collector:latest
+        args:
+        - --config=/conf/collector.yaml
+        ports:
+        - containerPort: 8888   # health check
+        volumeMounts:
+        - name: config
+          mountPath: /conf
+      volumes:
+      - name: config
+        configMap:
+          name: adot-collector-config

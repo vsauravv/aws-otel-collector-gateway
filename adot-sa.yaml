@@ -1,0 +1,8 @@
+# adot-sa.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: adot-sa
+  namespace: monitoring
+  annotations:
+    eks.amazonaws.com/role-arn: arn:aws:iam::103879232251:role/ADOT-IRSA-Role

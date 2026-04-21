@@ -1,0 +1,29 @@
+receivers:
+  prometheus:
+    config:
+      global:
+        scrape_interval: 60s
+      scrape_configs:
+        - job_name: 'cloudwatch-exporter'
+          static_configs:
+            - targets: ['localhost:9106']
+
+processors:
+  batch:
+    timeout: 10s
+    send_batch_size: 1000
+  resourcedetection:
+    detectors: [ec2]
+
+exporters:
+  otlp:
+    endpoint: 34.29.236.80:4317   # GKE Cluster Endpoint, run 34.29.236.80 to get the external endpoint
+    tls:
+      insecure: false
+
+service:
+  pipelines:
+    metrics:
+      receivers: [prometheus]
+      processors: [batch, resourcedetection]
+      exporters: [otlp]

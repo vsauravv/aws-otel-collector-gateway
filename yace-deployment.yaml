@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: yace
+  namespace: monitoring
+spec:
+  replicas: 1   # 1 replica for No Duplication, cluster in multi-AZ for HA
+  selector:
+    matchLabels:
+      app: yace
+  template:
+    metadata:
+      labels:
+        app: yace
+    spec:
+      serviceAccountName: yace-sa
+      containers:
+      - name: yace
+        image: quay.io/prometheuscommunity/yet-another-cloudwatch-exporter:latest
+        args:
+        - --config.file=/config/config.yaml
+        ports:
+        - containerPort: 5000
+        volumeMounts:
+        - name: config
+          mountPath: /config
+      volumes:
+      - name: config
+        configMap:
+          name: yace-config
