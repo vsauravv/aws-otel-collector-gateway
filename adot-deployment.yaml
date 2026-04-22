@@ -4,7 +4,7 @@ metadata:
   name: adot-collector
   namespace: monitoring
 spec:
-  replicas: 2   # 2 replicas for HA, AMP will handle deduplication, if there are any
+  replicas: 2   # 2 replicas for HA, AMP will handle deduplication, if there are any, applicable for production, in lower env, we can have only 1 replica
   selector:
     matchLabels:
       app: adot-collector
