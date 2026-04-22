@@ -10,7 +10,7 @@ We are pulling **CloudWatch metrics** through Yet Another CloudWatch Exporter (Y
 
 ## Architecture
 
-## Architecture
+mermaid
 
 flowchart TD
     %% CloudWatch
