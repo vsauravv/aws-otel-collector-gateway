@@ -16,7 +16,7 @@ We are pulling **CloudWatch metrics** through Yet Another CloudWatch Exporter (Y
 4. Metrics flow into both AMP and New Relic
 5. Duplications are managed automatically at AMP - replica label + timestamp basis
 
-# IMPORTANT:
+### IMPORTANT:
 1. YACE has two replicas for HA, in case one pod gets down, other will still serve the ttaffic
 2. AMP manages any kind of duplication automatically.
 
