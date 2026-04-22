@@ -4,7 +4,7 @@ metadata:
   name: yace
   namespace: monitoring
 spec:
-  replicas: 2   # 2 replicas or HA
+  replicas: 1   # Removes duplicatoion
   selector:
     matchLabels:
       app: yace

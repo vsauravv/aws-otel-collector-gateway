@@ -1,17 +1,17 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: adot-forwarder
+  name: adot-scraper
   namespace: monitoring
 spec:
-  replicas: 2   # 2 replicas for HA
+  replicas: 1   # 2 replicas for HA, AMP will handle deduplication, if there are any, applicable for production, in lower env, we can have only 1 replica #changing it back to
   selector:
     matchLabels:
-      app: adot-forwarder
+      app: adot-scraper
   template:
     metadata:
       labels:
-        app: adot-forwarder
+        app: adot-scraper
     spec:
       serviceAccountName: adot-sa
       containers:
@@ -27,4 +27,4 @@ spec:
       volumes:
       - name: config
         configMap:
-          name: adot-forwarder-config
+          name: adot-scraper-config

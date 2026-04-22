@@ -1,37 +1,29 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: adot-collector-config
+  name: adot-forwarder-config
   namespace: monitoring
 data:
   collector.yaml: |
     receivers:
-      prometheus:
-        config:
-          scrape_configs:
-          - job_name: 'yace-cloudwatch'
-            scrape_interval: 60s
-            static_configs:
-            - targets: ['yace-service.monitoring.svc.cluster.local:5000']
+      otlp:
+        protocols:
+          grpc:
+          http:
 
     processors:
       batch:
 
-    extensions:
-      sigv4auth:
-        region: ap-south-1
-        service: "aps"   # Important for AMP
 
     exporters:
-      prometheusremotewrite:
-        endpoint: "https://aps-workspaces.ap-south-1.amazonaws.com/workspaces/ws-545645c3-1ceb-4f7b-9c92-ad8ffd357af7/api/v1/remote_write"   # ←← YAHAN APNA REAL ENDPOINT DAAL
-        auth:
-          authenticator: sigv4auth
+      otlphttp/newrelic:
+        endpoint: https://otlp.nr-data.net:443
+        headers:
+          api-key: 64d352987aac450f026acd1c809cef47c1beNRAL
 
     service:
-      extensions: [sigv4auth]
       pipelines:
         metrics:
-          receivers: [prometheus]
+          receivers: [otlp]
           processors: [batch]
-          exporters: [prometheusremotewrite]
+          exporters: [otlphttp/newrelic]
