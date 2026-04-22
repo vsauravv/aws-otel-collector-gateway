@@ -12,14 +12,47 @@ We are pulling **CloudWatch metrics** through Yet Another CloudWatch Exporter (Y
 
 ## Architecture
 
-```mermaid
 flowchart TD
-    A[CloudWatch Metrics] 
-    -->|Pull| 
-    B[YACE Exporter<br/>Replicas = 2]
+    %% CloudWatch
+    CW[CloudWatch Metrics<br/>EC2, S3, RDS, ALB, NLB...]
 
-    B -->|Expose /metrics| 
-    C[ADOT Collector<br/>Replicas = 2]
+    %% YACE Layer
+    subgraph YACE_Layer ["YACE Exporter (2 Replicas)"]
+        Y1[YACE Pod 1]
+        Y2[YACE Pod 2]
+    end
 
-    C -->|Remote Write| D[Amazon Managed Prometheus<br/>(AMP)]
-    C -->|Remote Write| E[New Relic]
+    %% ADOT Layer
+    subgraph ADOT_Layer ["ADOT Collector (2 Replicas)"]
+        A1[ADOT Pod 1<br/>+ replica label]
+        A2[ADOT Pod 2<br/>+ replica label]
+    end
+
+    %% Destination
+    subgraph Destination ["Destinations"]
+        AMP[Amazon Managed Prometheus<br/>AMP<br/>Deduplication happens here]
+        NR[New Relic]
+    end
+
+    %% Flow
+    CW -->|Pull Metrics| Y1
+    CW -->|Pull Metrics| Y2
+
+    Y1 -->|Expose /metrics| A1
+    Y1 -->|Expose /metrics| A2
+    Y2 -->|Expose /metrics| A1
+    Y2 -->|Expose /metrics| A2
+
+    A1 -->|Remote Write| AMP
+    A2 -->|Remote Write| AMP
+    A1 -->|Remote Write| NR
+    A2 -->|Remote Write| NR
+
+    %% Styling
+    classDef yace fill:#90EE90,stroke:#2E8B57,stroke-width:2px
+    classDef adot fill:#FFB6C1,stroke:#333,stroke-width:2px
+    classDef dest fill:#ADD8E6,stroke:#333,stroke-width:2px
+
+    class Y1,Y2 yace
+    class A1,A2 adot
+    class AMP,NR dest
