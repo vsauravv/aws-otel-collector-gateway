@@ -4,7 +4,7 @@ metadata:
   name: yace
   namespace: monitoring
 spec:
-  replicas: 1   # 1 replica for No Duplication, cluster in multi-AZ for HA
+  replicas: 2   # 2 replicas or HA
   selector:
     matchLabels:
       app: yace
