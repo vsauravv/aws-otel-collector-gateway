@@ -10,8 +10,7 @@ We are pulling **CloudWatch metrics** through Yet Another CloudWatch Exporter (Y
 
 ## Architecture
 
-mermaid
-
+```mermaid
 flowchart TD
     %% CloudWatch
     CW[CloudWatch Metrics<br/>EC2, S3, RDS, ALB, NLB...]
@@ -56,3 +55,4 @@ flowchart TD
     class Y1,Y2 yace
     class A1,A2 adot
     class AMP,NR dest
+```
