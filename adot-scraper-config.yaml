@@ -9,18 +9,34 @@ data:
       prometheus:
         config:
           scrape_configs:
-          - job_name: 'aws-cloudwatch-otel'
+          - job_name: 'aws-cloudwatch-yace'
             scrape_interval: 60s
+            scrape_timeout: 30s
             static_configs:
             - targets: ['yace-service.monitoring.svc.cluster.local:5000']
 
     processors:
       batch:
+        send_batch_size: 2000
+        timeout: 60s
 
+      resource:
+        attributes:
+        - key: k8s.namespace.name
+          action: insert
+          value: monitoring
+        - key: k8s.deployment.name
+          action: insert
+          value: adot-scraper
+        - key: service.name
+          action: insert
+          value: otel-gateway
 
     exporters:
+      debug:
+        verbosity: basic
       otlp:
-        endpoint: adot-forwarder:4317
+        endpoint: adot-forwarder.monitoring.svc.cluster.local:4317
         tls:
           insecure: true
 
@@ -28,5 +44,5 @@ data:
       pipelines:
         metrics:
           receivers: [prometheus]
-          processors: [batch]
-          exporters: [otlp]
+          processors: [resource, batch]
+          exporters: [debug, otlp]
