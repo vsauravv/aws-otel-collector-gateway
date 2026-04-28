@@ -24,26 +24,23 @@ We are pulling **CloudWatch metrics** through Yet Another CloudWatch Exporter (Y
 flowchart TD
     %% --- AWS Layer ---
     subgraph AWS["AWS Cloud (ap-south-1)"]
-        CW["CloudWatch Metrics<br/>(EC2 • RDS • S3 • EKS)"]
+        CW["CloudWatch Metrics<br/>EC2 • RDS • S3 • EKS"]
     end
 
     %% --- EKS Cluster ---
     subgraph EKS["EKS Cluster: vivek-aws-otel-test<br/>Namespace: monitoring"]
 
-        %% YACE
         subgraph YACE["YACE (CloudWatch Exporter)"]
             YACE_DEP["Deployment<br/>1 replica"]
             YACE_SVC["Service :5000"]
             YACE_CM["Config"]
         end
 
-        %% Scraper
         subgraph SCRAPER["ADOT Scraper"]
             SCRAPER_DEP["Deployment<br/>1 replica"]
             SCRAPER_CM["Config"]
         end
 
-        %% Forwarder
         subgraph FORWARDER["ADOT Forwarder (HA)"]
             FORWARDER_DEP["Deployment<br/>2 replicas"]
             FORWARDER_SVC["Service :4317"]
@@ -51,14 +48,13 @@ flowchart TD
         end
     end
 
-    %% --- Destination ---
-    DT["Dynatrace<br/>OTLP/HTTP Endpoint"]
+    DT["Dynatrace<br/>OTLP HTTP Endpoint"]
 
     %% --- Flow ---
     CW -->|Pull via AWS APIs| YACE_DEP
     YACE_DEP --> YACE_SVC
-    YACE_SVC -->|Prometheus scrape (60s)| SCRAPER_DEP
+    YACE_SVC -->|Prometheus scrape 60s| SCRAPER_DEP
     SCRAPER_DEP -->|OTLP gRPC| FORWARDER_SVC
     FORWARDER_SVC --> FORWARDER_DEP
-    FORWARDER_DEP -->|OTLP/HTTP + API Key| DT
+    FORWARDER_DEP -->|OTLP HTTP + API Key| DT
 ```
