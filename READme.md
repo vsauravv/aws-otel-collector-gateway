@@ -1,70 +1,44 @@
-# Central OTEL Gateway - Deduplication Explained
-
-## Overview
-
-We are pulling **CloudWatch metrics** through Yet Another CloudWatch Exporter (YACE) and sending it to AMP/New Relic via ADOT collector
-
-**Goal**: High Availability (HA) + Minimal Duplication
-
----
-
-## Flow
-
-1. CloudWatch emits metrics
-2. 2 Pods of YACE pull metrics from CloudWatch --> Duplication possible
-3. ADOT (2 replicas) scrapes metrics from YACE Pods. Every ADOT pod has replica label added with the metric name.
-4. Metrics flow into both AMP and New Relic
-5. Duplications are managed automatically at AMP - replica label + timestamp basis
-
-### IMPORTANT:
-1. YACE has two replicas for HA, in case one pod gets down, other will still serve the ttaffic
-2. AMP manages any kind of duplication automatically.
-
-## Architecture
-
 ```mermaid
 flowchart TD
-    %% CloudWatch
-    CW[CloudWatch Metrics<br/>EC2, S3, RDS, ALB, NLB...]
-
-    %% YACE Layer
-    subgraph YACE_Layer ["YACE Exporter (2 Replicas)"]
-        Y1[YACE Pod 1]
-        Y2[YACE Pod 2]
+    subgraph AWS["AWS Cloud (ap-south-1)"]
+        CW[CloudWatch Metrics\n(EC2, RDS, S3, EKS, ElastiCache etc.)]
     end
 
-    %% ADOT Layer
-    subgraph ADOT_Layer ["ADOT Collector (2 Replicas)"]
-        A1[ADOT Pod 1<br/>+ replica label]
-        A2[ADOT Pod 2<br/>+ replica label]
+    subgraph EKS["EKS Cluster: <cluster_name>\nNamespace: <namespace>"]
+        
+        subgraph YACE_Group["1. YACE - CloudWatch Exporter"]
+            YACE[YACE Deployment\n1 replica\nServiceAccount: yace-sa\nIRSA Role: <YACE IRSA Role Name>]
+            YACE_SVC[YACE Service\nport: 5000\nPrometheus /metrics]
+            YACE_CM[YACE ConfigMap\nDiscovery jobs for multiple AWS services]
+        end
+
+        subgraph SCRAPER_Group["2. ADOT Scraper"]
+            SCRAPER[ADOT Scraper Deployment\n1 replica\nServiceAccount: adot-sa\nIRSA Role: <ADOT IRSA Role Name>]
+            SCRAPER_CM[ADOT Scraper ConfigMap\nPrometheus Receiver]
+        end
+
+        subgraph FORWARDER_Group["3. ADOT Forwarder (HA)"]
+            FORWARDER[ADOT Forwarder Deployment\n2 replicas\nServiceAccount: adot-sa\nIRSA Role: <ADOT IRSA Role Name>]
+            FORWARDER_SVC[ADOT Forwarder Service\nport: 4317\nOTLP gRPC]
+            FORWARDER_CM[ADOT Forwarder ConfigMap\nOTLP Receiver → Dynatrace]
+        end
     end
 
-    %% Destination
-    subgraph Destination ["Destinations"]
-        AMP[Amazon Managed Prometheus<br/>AMP<br/>Deduplication happens here]
-        NR[New Relic]
-    end
+    DT[Dynatrace\nOTLP/HTTP Endpoint]
 
-    %% Flow
-    CW -->|Pull Metrics| Y1
-    CW -->|Pull Metrics| Y2
+    %% Data Flow
+    CW --"Pull metrics using AWS APIs"--> YACE
+    YACE --> YACE_SVC
+    YACE_SVC --"Prometheus scrape (60s)"--> SCRAPER
+    SCRAPER --"OTLP gRPC"--> FORWARDER_SVC
+    FORWARDER_SVC --> FORWARDER
+    FORWARDER --"OTLP/HTTP + API Key"--> DT
 
-    Y1 -->|Expose /metrics| A1
-    Y1 -->|Expose /metrics| A2
-    Y2 -->|Expose /metrics| A1
-    Y2 -->|Expose /metrics| A2
-
-    A1 -->|Remote Write| AMP
-    A2 -->|Remote Write| AMP
-    A1 -->|Remote Write| NR
-    A2 -->|Remote Write| NR
-
-    %% Styling
-    classDef yace fill:#90EE90,stroke:#2E8B57,stroke-width:2px
-    classDef adot fill:#FFB6C1,stroke:#333,stroke-width:2px
-    classDef dest fill:#ADD8E6,stroke:#333,stroke-width:2px
-
-    class Y1,Y2 yace
-    class A1,A2 adot
-    class AMP,NR dest
+    classDef aws fill:#FF9900,stroke:#232F3E,color:white;
+    classDef component fill:#E6F3FF,stroke:#0066CC,color:#003366;
+    classDef dt fill:#00CC66,stroke:#006600,color:white;
+    
+    class CW aws;
+    class YACE,YACE_SVC,YACE_CM,SCRAPER,SCRAPER_CM,FORWARDER,FORWARDER_SVC,FORWARDER_CM component;
+    class DT dt;
 ```
