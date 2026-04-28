@@ -27,20 +27,24 @@ data:
     discovery:
       jobs:
         - type: AWS/S3
-          regions: [us-west-1]
+          regions: ["us-east-1"]
+          searchTags:
+            - key: '.*'
+              value: '.*'
           metrics:
             - name: AllRequests
               statistics: ["Average", "Maximum", "Minimum", "Sum"]
               period: 60
               length: 300
+
             - name: BucketSizeBytes
-              statistics: ["Average", "Maximum", "Minimum", "Sum"]
+              statistics: ["Average"]
               period: 86400
               length: 172800
               nilToZero: true
-              addCloudwatchTimestamp: true
+              
             - name: NumberOfObjects
-              statistics: ["Average", "Maximum", "Minimum", "Sum"]
+              statistics: ["Average"]
               period: 86400
               length: 172800
               nilToZero: true
@@ -98,24 +102,46 @@ data:
 
         - type: AWS/RDS
           regions: ["ap-south-1"]
-          statistics: ["Average", "Maximum", "Minimum", "Sum"]
-          period: 300
-          length: 1800
-          nilToZero: true
-          delay: 300
           searchTags:
-            - key: '.*'
-              value: '.*'
+            - key: env
+              value: test
           metrics:
             - name: CPUUtilization
+              statistics: ["Average", "Maximum", "Minimum", "Sum"]
+              period: 300
+              length: 1800
             - name: DatabaseConnections
+              statistics: ["Average", "Maximum", "Minimum", "Sum"]
+              period: 300
+              length: 1800
             - name: FreeableMemory
+              statistics: ["Average", "Maximum", "Minimum", "Sum"]
+              period: 300
+              length: 1800
             - name: FreeStorageSpace
+              statistics: ["Average", "Maximum", "Minimum", "Sum"]
+              period: 300
+              length: 1800
             - name: ReadIOPS
+              statistics: ["Average", "Maximum", "Minimum", "Sum"]
+              period: 300
+              length: 1800
             - name: WriteIOPS
+              statistics: ["Average", "Maximum", "Minimum", "Sum"]
+              period: 300
+              length: 1800
             - name: ReadLatency
+              statistics: ["Average", "Maximum", "Minimum", "Sum"]
+              period: 300
+              length: 1800
             - name: WriteLatency
+              statistics: ["Average", "Maximum", "Minimum", "Sum"]
+              period: 300
+              length: 1800
             - name: DiskQueueDepth
+              statistics: ["Average", "Maximum", "Minimum", "Sum"]
+              period: 300
+              length: 1800
 
         # - type: AWS/ApplicationELB
         #   regions: ["ap-south-1"]
