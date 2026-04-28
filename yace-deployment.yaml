@@ -16,7 +16,7 @@ spec:
       serviceAccountName: yace-sa
       containers:
       - name: yace
-        image: quay.io/prometheuscommunity/yet-another-cloudwatch-exporter:latest
+        image: quay.io/prometheuscommunity/yet-another-cloudwatch-exporter:v0.65.0
         args:
         - --config.file=/config/config.yaml
         ports:

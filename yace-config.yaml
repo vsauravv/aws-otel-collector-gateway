@@ -6,26 +6,45 @@ metadata:
 data:
   config.yaml: |
     apiVersion: v1alpha1
-    static:
-      - namespace: AWS/S3
-        regions:
-          - us-east-1
-        name: vivek-otel-aws-test
-        metrics:
-          - name: BucketSizeBytes
-            statistics: ["Average"]
-            period: 86400
-            length: 172800
-            nilToZero: true
+    # static:
+    #   - namespace: AWS/S3
+    #     regions:
+    #       - us-east-1
+    #     name: vivek-otel-aws-test
+    #     metrics:
+    #       - name: BucketSizeBytes
+    #         statistics: ["Average"]
+    #         period: 86400
+    #         length: 172800
+    #         nilToZero: true
 
-          - name: NumberOfObjects
-            statistics: ["Average"]
-            period: 86400
-            length: 172800
-            nilToZero: true
+    #       - name: NumberOfObjects
+    #         statistics: ["Average"]
+    #         period: 86400
+    #         length: 172800
+    #         nilToZero: true
       
     discovery:
       jobs:
+        - type: AWS/S3
+          regions: [us-west-1]
+          metrics:
+            - name: AllRequests
+              statistics: ["Average", "Maximum", "Minimum", "Sum"]
+              period: 60
+              length: 300
+            - name: BucketSizeBytes
+              statistics: ["Average", "Maximum", "Minimum", "Sum"]
+              period: 86400
+              length: 172800
+              nilToZero: true
+              addCloudwatchTimestamp: true
+            - name: NumberOfObjects
+              statistics: ["Average", "Maximum", "Minimum", "Sum"]
+              period: 86400
+              length: 172800
+              nilToZero: true
+              
         - type: AWS/EC2
           regions: ["ap-south-1"]
           statistics: ["Average", "Maximum", "Minimum"]
@@ -77,18 +96,26 @@ data:
         #     - name: ReplicationLag
         #     - name: EngineCPUUtilization
 
-        # - type: AWS/RDS
-        #   regions: ["ap-south-1"]
-        #   statistics: ["Average"]
-        #   period: 300
-        #   length: 1800
-        #   nilToZero: true
-        #   delay: 300
-        #   metrics:
-        #     - name: CPUUtilization
-        #     - name: DatabaseConnections
-        #     - name: FreeableMemory
-        #     - name: FreeStorageSpace
+        - type: AWS/RDS
+          regions: ["ap-south-1"]
+          statistics: ["Average", "Maximum", "Minimum", "Sum"]
+          period: 300
+          length: 1800
+          nilToZero: true
+          delay: 300
+          searchTags:
+            - key: '.*'
+              value: '.*'
+          metrics:
+            - name: CPUUtilization
+            - name: DatabaseConnections
+            - name: FreeableMemory
+            - name: FreeStorageSpace
+            - name: ReadIOPS
+            - name: WriteIOPS
+            - name: ReadLatency
+            - name: WriteLatency
+            - name: DiskQueueDepth
 
         # - type: AWS/ApplicationELB
         #   regions: ["ap-south-1"]
