@@ -221,14 +221,25 @@ data:
               nilToZero: true
               delay: 60
 
-        # - type: AWS/NetworkELB
-        #   regions: ["ap-south-1"]
-        #   statistics: ["Average", "Sum"]
-        #   period: 60
-        #   length: 900
-        #   nilToZero: true
-        #   delay: 120
-        #   metrics:
-        #     - name: ActiveFlowCount
-        #     - name: NewFlowCount
-        #     - name: ProcessedBytes
+        - type: AWS/NetworkELB
+          regions: ["ap-south-1"]
+          statistics: ["Average", "Sum"]
+          searchTags:
+            - key: service
+              value: nlb
+          metrics:
+            - name: ActiveFlowCount
+              period: 60
+              length: 900
+              nilToZero: true
+              delay: 120
+            - name: NewFlowCount
+              period: 60
+              length: 900
+              nilToZero: true
+              delay: 120
+            - name: ProcessedBytes
+              period: 60
+              length: 900
+              nilToZero: true
+              delay: 120
