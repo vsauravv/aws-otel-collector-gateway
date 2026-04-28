@@ -6,31 +6,15 @@ metadata:
 data:
   config.yaml: |
     apiVersion: v1alpha1
-    # static:
-    #   - namespace: AWS/S3
-    #     regions:
-    #       - us-east-1
-    #     name: vivek-otel-aws-test
-    #     metrics:
-    #       - name: BucketSizeBytes
-    #         statistics: ["Average"]
-    #         period: 86400
-    #         length: 172800
-    #         nilToZero: true
-
-    #       - name: NumberOfObjects
-    #         statistics: ["Average"]
-    #         period: 86400
-    #         length: 172800
-    #         nilToZero: true
-      
     discovery:
       jobs:
         - type: AWS/S3
-          regions: ["us-east-1"]
+          regions: ["us-west-1", "ap-south-1"]
           searchTags:
-            - key: '.*'
-              value: '.*'
+            - key: Environment
+              value: test_poc
+            - key: env
+              value: test
           metrics:
             - name: AllRequests
               statistics: ["Average", "Maximum", "Minimum", "Sum"]
@@ -79,26 +63,84 @@ data:
             - name: scheduler_pending_pods
             - name: controller_manager_queue_depth
 
-        # - type: AWS/ElastiCache
-        #   regions: ["ap-south-1"]
-        #   statistics: ["Average"]
-        #   period: 300
-        #   length: 1800
-        #   nilToZero: true
-        #   delay: 300
-        #   metrics:
-        #     - name: CPUUtilization
-        #     - name: CurrConnections
-        #     - name: BytesUsedForCache
-        #     - name: Evictions
-        #     - name: GetTypeCmds
-        #     - name: SetTypeCmds
-        #     - name: SuccessfulReadRequestLatency
-        #     - name: SuccessfulWriteRequestLatency
-        #     - name: NetworkBytesIn
-        #     - name: NetworkBytesOut
-        #     - name: ReplicationLag
-        #     - name: EngineCPUUtilization
+        - type: AWS/ElastiCache
+          regions: ["ap-south-1"]
+          searchTags:
+            - key: env
+              value: otel-test
+          metrics:
+            - name: CPUUtilization
+              statistics: ["Average"]
+              period: 300
+              length: 1800
+              nilToZero: true
+              delay: 300
+            - name: CurrConnections
+              statistics: ["Average"]
+              period: 300
+              length: 1800
+              nilToZero: true
+              delay: 300
+            - name: BytesUsedForCache
+              statistics: ["Average"]
+              period: 300
+              length: 1800
+              nilToZero: true
+              delay: 300
+            - name: Evictions
+              statistics: ["Average"]
+              period: 300
+              length: 1800
+              nilToZero: true
+              delay: 300
+            - name: GetTypeCmds
+              statistics: ["Average"]
+              period: 300
+              length: 1800
+              nilToZero: true
+              delay: 300
+            - name: SetTypeCmds
+              statistics: ["Average"]
+              period: 300
+              length: 1800
+              nilToZero: true
+              delay: 300
+            - name: SuccessfulReadRequestLatency
+              statistics: ["Average"]
+              period: 300
+              length: 1800
+              nilToZero: true
+              delay: 300
+            - name: SuccessfulWriteRequestLatency
+              statistics: ["Average"]
+              period: 300
+              length: 1800
+              nilToZero: true
+              delay: 300
+            - name: NetworkBytesIn
+              statistics: ["Average"]
+              period: 300
+              length: 1800
+              nilToZero: true
+              delay: 300
+            - name: NetworkBytesOut
+              statistics: ["Average"]
+              period: 300
+              length: 1800
+              nilToZero: true
+              delay: 300
+            - name: ReplicationLag
+              statistics: ["Average"]
+              period: 300
+              length: 1800
+              nilToZero: true
+              delay: 300
+            - name: EngineCPUUtilization
+              statistics: ["Average"]
+              period: 300
+              length: 1800
+              nilToZero: true
+              delay: 300
 
         - type: AWS/RDS
           regions: ["ap-south-1"]
