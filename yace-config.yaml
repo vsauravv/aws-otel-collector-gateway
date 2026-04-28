@@ -9,10 +9,8 @@ data:
     discovery:
       jobs:
         - type: AWS/S3
-          regions: ["us-west-1", "ap-south-1"]
+          regions: ["ap-south-1"]
           searchTags:
-            - key: Environment
-              value: test_poc
             - key: env
               value: test
           metrics:
