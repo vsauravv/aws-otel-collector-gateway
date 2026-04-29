@@ -4,7 +4,7 @@ metadata:
   name: adot-scraper
   namespace: monitoring
 spec:
-  replicas: 1   # 2 replicas for HA, AMP will handle deduplication, if there are any, applicable for production, in lower env, we can have only 1 replica #changing it back to
+  replicas: 1   
   selector:
     matchLabels:
       app: adot-scraper

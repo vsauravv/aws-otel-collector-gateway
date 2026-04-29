@@ -32,6 +32,14 @@ data:
           action: insert
           value: otel-gateway
 
+    extensions:
+      health_check:
+        endpoint: 0.0.0.0:13133 # Or any other open port
+      pprof:
+        endpoint: 0.0.0.0:1777 # Or any other open port
+      zpages:
+        endpoint: 0.0.0.0:13113 # Or any other open port
+    
     exporters:
       debug:
         verbosity: basic
@@ -41,6 +49,7 @@ data:
           insecure: true
 
     service:
+      extensions: [health_check, pprof, zpages]
       pipelines:
         metrics:
           receivers: [prometheus]

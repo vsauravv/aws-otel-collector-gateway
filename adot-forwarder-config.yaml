@@ -16,6 +16,14 @@ data:
     processors:
       batch:
 
+    extensions:
+      health_check:
+        endpoint: 0.0.0.0:13133 # Or any other open port
+      pprof:
+        endpoint: 0.0.0.0:1777 # Or any other open port
+      zpages:
+        endpoint: 0.0.0.0:13113 # Or any other open port
+
 
     exporters:
       otlphttp/newrelic:
@@ -24,6 +32,7 @@ data:
           api-key: 64d352987aac450f026acd1c809cef47c1beNRAL
 
     service:
+      extensions: [health_check, pprof, zpages]
       pipelines:
         metrics:
           receivers: [otlp]
