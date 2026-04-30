@@ -1,0 +1,39 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: k8s-monitor-config
+  namespace: monitoring
+data:
+  otel-config.yaml: |
+    receivers:
+      k8s_cluster:
+        collection_interval: 30s
+
+      kubeletstats:
+        collection_interval: 30s
+        auth_type: serviceAccount
+        endpoint: https://${env:K8S_NODE_NAME}:10250
+        insecure_skip_verify: true
+
+    processors:
+      k8sattributes:
+        auth_type: serviceAccount
+
+      batch:
+
+    exporters:
+      otlphttp/newrelic:
+        endpoint: https://otlp.nr-data.net:443
+        headers:
+          api-key: 7e591d6ea288c7bf3377abe2e55d3b02a311NRAL
+      debug:
+        verbosity: detailed
+      prometheus:
+        endpoint: "0.0.0.0:5000"
+
+    service:
+      pipelines:
+        metrics:
+          receivers: [k8s_cluster, kubeletstats]
+          processors: [k8sattributes, batch]
+          exporters: [otlphttp/newrelic, debug, prometheus]

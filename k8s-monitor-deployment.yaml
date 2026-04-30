@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: k8s-monitor
+  namespace: monitoring
+spec:
+  replicas: 1   # IMPORTANT: keep this 1 (avoid duplication)
+  selector:
+    matchLabels:
+      app: k8s-monitor
+  template:
+    metadata:
+      labels:
+        app: k8s-monitor
+    spec:
+      serviceAccountName: k8s-monitor
+      containers:
+        - name: otel-collector
+          image: otel/opentelemetry-collector-contrib:latest
+          args:
+            - --config=/conf/otel-config.yaml
+          env:
+            - name: K8S_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+          volumeMounts:
+            - name: config
+              mountPath: /conf
+      volumes:
+        - name: config
+          configMap:
+            name: k8s-monitor-config
