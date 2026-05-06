@@ -4,6 +4,7 @@ metadata:
   name: adot-forwarder
   namespace: monitoring
 spec:
+  type: LoadBalancer
   selector:
     app: adot-forwarder
   ports:
